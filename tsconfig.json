@@ -3,8 +3,11 @@
       "target": "ES6",
       "module": "CommonJS",
       "declaration": true,
-      "outDir": "./lib",
-      "strict": false
+      "outDir": "./",
+      "strict": false,
+      "allowSyntheticDefaultImports": true,
+      "moduleResolution": "Node",
+      "esModuleInterop": true
     },
     "include": ["src"],
     "exclude": ["node_modules", "**/__tests__/*"]

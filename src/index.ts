@@ -1,12 +1,8 @@
-import * as moment from "moment";
+import moment from "moment";
 const crypto = require('crypto');
 import axios from "axios";
 
-const baseUrl = "https://sandbox.securo.dev/api/v1/";
-
-interface IOB {
-    test: () => number
-}
+const baseUrl = "https://api.securo.dev/api/v1/";
 
 export interface IIndexFund {
     product: string,
@@ -90,10 +86,20 @@ export class Securo {
     secretKey: string;
     indexFundUtil: Object;
     anything: string;
+    baseUrl: string;
     constructor(apiKey: string, secretKey: string) {
         this.apiKey = apiKey;
         this.secretKey = secretKey;
-        this.anything = "tester"
+        this.anything = "tester";
+        this.baseUrl = baseUrl;
+    }
+
+    sandboxMode() {
+        this.baseUrl = "https://sandbox.securo.dev/api/v1/";
+    }
+
+    maintenanceMode() {
+        this.baseUrl = "https://test-api.securo.dev/api/v1/";
     }
 
     getVersion() {
@@ -104,233 +110,247 @@ export class Securo {
     }
 
     getSession = async (sessionId: string | null = null) => {
-        let url = baseUrl + "sessions";
+        let url = this.baseUrl + "sessions";
         if(sessionId) url = url + `/${sessionId}`;
         const config = this.configGeneration("GET", url);
         try {
             const { data } = await axios(config);
             return data.data;
         } catch (error) {
-            console.log('[Error]', error)
+            throw error.response.data.message;
         }
     }
 
     expireSession = async (sessionId: string) => {
-        let url = baseUrl + `sessions/${sessionId}/expire`;
+        let url = this.baseUrl + `sessions/${sessionId}/expire`;
         const config = this.configGeneration("POST", url);
         try {
             const { data } = await axios(config);
             return data.message;
         } catch (error) {
-            console.log('[Error]', error)
+            throw error.response.data.message;
         }
     }
 
     indexFund = {
         getProducts: async () => {
-            const url = baseUrl + "product/get-products";
+            const url = this.baseUrl + "product/get-products";
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getPriceOf: async (type: string) => {
-            const url = baseUrl + `product/price?symbol=${type}`;
+            const url = this.baseUrl + `product/price?symbol=${type}`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
+                if(!data.data) return data.message;
+
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getPoolValueOf: async (type: string) => {
-            const url = baseUrl + `product/pool?symbol=${type}`;
+            const url = this.baseUrl + `product/pool?symbol=${type}`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
+                if(!data.data) return data.message;
+
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         createSession: async (body: IIndexFund) => {
-            const url = 'https://sandbox.securo.dev/api/v1/sessions';
+            const url = this.baseUrl + `sessions`;
             const config = this.configGeneration("POST", url, JSON.stringify(body));
             try {
                 const { data } = await axios(config);
+                if(!data.data) return data.message;
+
                 return data.data;
             } catch (error) {
-                console.log('[Error createSession]:', error);
+                throw error.response.data.message;
             }
         }
     }
 
     dexSwap = {
         getSupportedTokens: async (chain: string) => {
-            const url = baseUrl + `web3/dex/swap/listTokens/${chain}`;
+            const url = this.baseUrl + `web3/dex/swap/listTokens/${chain}`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
+
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getSupportedPools: async (chain: string) => {
-            const url = baseUrl + `web3/dex/swap/listPools/${chain}`;
+            const url = this.baseUrl + `web3/dex/swap/listPools/${chain}`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
+                
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getTokenPrice: async (token: string) => {
-            const url = baseUrl + `web3/dex/price`;
+            const url = this.baseUrl + `web3/dex/price`;
             const config = this.configGeneration("POST", url, JSON.stringify({token: token}));
             try {
                 const { data } = await axios(config);
+
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getTokenAddress: async (chainId: number, token: string) => {
-            const url = baseUrl + `web3/dex/contractAddressAndData`;
+            const url = this.baseUrl + `web3/dex/contractAddressAndData`;
             const config = this.configGeneration("POST", url, JSON.stringify({chainId: chainId, token: token}));
             try {
                 const { data } = await axios(config);
+                
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getEstimatedSwap: async (chain: string, tokenIn: string, tokenOut: string, enteredAmount: string, slippagePerc?: number, exactIn: boolean = true, chainId?: number) => {
-            const url = baseUrl + `web3/dex/swap/estimate/?tokenOut=${tokenOut}&exactIn=${exactIn}&chain=${chain}&tokenIn=${tokenIn}&enteredAmount=${enteredAmount}`;
+            const url = this.baseUrl + `web3/dex/swap/estimate/?tokenOut=${tokenOut}&exactIn=${exactIn}&chain=${chain}&tokenIn=${tokenIn}&enteredAmount=${enteredAmount}`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
+
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getLiquidity: async (chain: string, tokenA: string, tokenB: string, amountA: number) => {
-            const url = baseUrl + `web3/dex/lpAmounts/?chain=${chain}&tokenA=${tokenA}&tokenB=${tokenB}&amountA=${amountA}`;
+            const url = this.baseUrl + `web3/dex/lpAmounts/?chain=${chain}&tokenA=${tokenA}&tokenB=${tokenB}&amountA=${amountA}`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
+
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         createSwapSession: async (body: IDexSwap) => {
-            const url = 'https://sandbox.securo.dev/api/v1/sessions/swap';
+            const url = this.baseUrl + `sessions/swap`;
             const config = this.configGeneration("POST", url, JSON.stringify(body));
             try {
                 const { data } = await axios(config);
+                
                 return data.data;
             } catch (error) {
-                console.log('[Error createSession]:', error);
+                throw error.response.data.message;
             }
         },
         createLiquiditySession: async (body: ILiquidity) => {
-            const url = 'https://sandbox.securo.dev/api/v1/sessions/liquidity';
+            const url = this.baseUrl + `sessions/liquidity`;
             const config = this.configGeneration("POST", url, JSON.stringify(body));
             try {
                 const { data } = await axios(config);
+
                 return data.data;
             } catch (error) {
-                console.log('[Error createSession]:', error);
+                throw error.response.data.message;
             }
         }
     }
 
     fiatToCrypto = {
         getPaymentCountries: async () => {
-            const url = baseUrl + `payment/countries`;
+            const url = this.baseUrl + `payment/countries`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getPaymentCryptoCurrencies: async () => {
-            const url = baseUrl + `payment/crypto-currencies`;
+            const url = this.baseUrl + `payment/crypto-currencies`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getFiatCurrencies: async () => {
-            const url = baseUrl + `payment/fiat-currencies`;
+            const url = this.baseUrl + `payment/fiat-currencies`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getEstimatedCurrencyRate: async (body: ICurrencyRate) => {
-            const url = baseUrl + `payment/currency-price`;
+            const url = this.baseUrl + `payment/currency-price`;
             const config = this.configGeneration("POST", url, JSON.stringify(body));
             try {
                 const { data } = await axios(config);
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         createPaymentRequest: async (body: IPaymentRequest) => {
-            const url = baseUrl + `payment`;
+            const url = this.baseUrl + `payment`;
             const config = this.configGeneration("POST", url, JSON.stringify(body));
             try {
                 const { data } = await axios(config);
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error.response.data)
+                throw error.response.data.message;
             }  
         },
         expirePaymentRequest: async (invoiceId: string) => {
-            const url = baseUrl + `payment/expire/${invoiceId}`;
+            const url = this.baseUrl + `payment/expire/${invoiceId}`;
             const config = this.configGeneration("PATCH", url);
             try {
                 const { data } = await axios(config);
                 return data;
             } catch (error) {
-                console.log('[Error]', error.response.data)
+                throw error.response.data.message;
             }  
         },
         getPaymentHistory: async (body?: IPaymentHistory) => {
-            const url = baseUrl + `payment/payment-history`;
+            const url = this.baseUrl + `payment/payment-history`;
             const config = this.configGeneration("GET", url, JSON.stringify(body));
             try {
                 const { data } = await axios(config);
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
         getByInvoiceId: async (invoiceId: string) => {
-            const url = baseUrl + `payment/${invoiceId}`;
+            const url = this.baseUrl + `payment/${invoiceId}`;
             const config = this.configGeneration("GET", url);
             try {
                 const { data } = await axios(config);
                 return data.data;
             } catch (error) {
-                console.log('[Error]', error)
+                throw error.response.data.message;
             }
         },
     }
@@ -340,6 +360,7 @@ export class Securo {
         const secretKey = this.secretKey;
     
         const timeStamp = moment().unix();
+        console.log(timeStamp)
         let baseString = `${url}&method=${method}&timestamp=${timeStamp}`;
     
         if(body) {
