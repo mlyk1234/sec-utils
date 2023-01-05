@@ -24,7 +24,7 @@
   /// ESM6
   import { Securo } from "test-securo";
 ```
-#### How to perform Index Fund
+### How to perform Index Fund
 - To get products
 ```javascript
   const securo = new Securo("APIKEY", "SECRETKEY");
@@ -46,7 +46,14 @@
   const getIndexProducts = securo.indexFund.createSession(body);
   // That's all!
 ```
-
+### Sandbox Mode
+```javascript
+  // ...continue
+  const securo = new Securo("APIKEY", "SECRETKEY");
+  securo.sandboxMode(); // Just add this to activate sandbox mode
+  const getIndexProducts = securo.indexFund.getProducts();
+  // That's all!
+```
 ## Documentation
 
 ### Index Funds
