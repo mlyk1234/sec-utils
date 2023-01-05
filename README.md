@@ -112,7 +112,7 @@
     const fund = await test.dexSwap.createSwapSession(body)
 ```
 Output
-```json
+```yaml
 {
     sessionId: 'VTJGc2RHVmtYMS9sSHBNK0dEckoxSGFaREdYNkZBUnJPQ0wwTEJHWjJua2ZLZlozVWhrdE93d0hZTCtHN0xWSw==',
     orderId: '9261-375699-8591',
@@ -164,7 +164,7 @@ Output
     console.log(addLiquidity)
 ```
 Output
-```json
+```yaml
 {
     sessionId: 'VTJGc2RHVmtYMThKK3NYZk1tb252a0VGSEwzLy9YbzR5eFd2MjRQdjFTZG5ydEw4T3dtd082MTlPblhTUTdFaw==',
     orderId: '9261-378095-6852',
@@ -216,7 +216,7 @@ Output
     console.log(addLiquidity)
 ```
 Output
-```json
+```yaml
 {
   tokenUsed: 'SOL',
   fiatCurrencyUsed: 'SGD',
